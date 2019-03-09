@@ -4,12 +4,12 @@ time_of_slice_time = constants.TIME_OF_TIME_SLICE
 max_note = constants.MAX_NOTE
 min_note = constants.MIN_NOTE
 notes_count = constants.NOTES_COUNT
-    
+
 class Midi_Data():
 	def __init__(self, total_tick_count, total_time_slice_count, ticks_per_time_slice):
-		self.total_tick_count = total_tick_count
-		self.total_time_slice_count = total_time_slice_count
-		self.ticks_per_time_slice = ticks_per_time_slice
+		self.TOTAL_TICK_COUNT = total_tick_count
+		self.TOTAL_TIME_SLICE_COUNT = total_time_slice_count
+		self.TICKS_PER_TIME_SLICE = ticks_per_time_slice
 
 class Training_Data: 
 	def __init__(self, input, output):
@@ -23,9 +23,9 @@ def midi_to_piano_roll(file_path):
 	midi_file = mido.MidiFile(file_path)
 	midi_data = get_midi_file_data(midi_file)
 
-	total_tick_count = midi_data.total_tick_count
-	time_slice_count = midi_data.total_time_slice_count
-	ticks_per_time_slice = midi_data.ticks_per_time_slice
+	total_tick_count = midi_data.TOTAL_TICK_COUNT
+	time_slice_count = midi_data.TOTAL_TIME_SLICE_COUNT
+	ticks_per_time_slice = midi_data.TICKS_PER_TIME_SLICE
 
 	piano_roll_data = np.zeros((notes_count, total_tick_count), dtype = int)
 

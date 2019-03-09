@@ -1,6 +1,8 @@
 from Data import midi_io
-import matplotlib.pyplot as plt
+from Model import model_maker
+import tensorflow as tf
 
-piano_roll = midi_io.load_midi_as_piano_roll("PKMN_X_Y_Route_8_By_Incinium.mid")
-plt.imshow(piano_roll[:200])
-plt.show()
+model = model_maker.create_model()
+data = midi_io.load_all_midis_as_piano_roll()
+model.compile(optimizer='adam',  loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.fit(data[0][0], data[0][1], epochs=20)

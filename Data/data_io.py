@@ -1,4 +1,5 @@
-from constants import DATA_OUTPUT_LOCATION
+import constants, pickle
+
 
 # DATA SHAPE
 # note1: [time0, time1, time2]

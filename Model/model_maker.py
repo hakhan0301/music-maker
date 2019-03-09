@@ -1,12 +1,15 @@
-from constants import NOTES_COUNT
+import constants
+import tensorflow as tf
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense, LSTM, Dropout, RepeatVector, TimeDistributed, BatchNormalization
 
-INPUT_SHAPE = [NOTES_COUNT]
-OUTPUT_SHAPE = [NOTES_COUNT]
+INPUT_SHAPE = constants.NOTES_COUNT
+OUTPUT_SHAPE =  constants.NOTES_COUNT
 
 def create_model():
 	model = Sequential()
-
-	model.add(LSTM(input_shape = INPUT_SHAPE, activation = 'tanh', return_sequences = True))
+	
+	model.add(LSTM(units = 96, input_dim = INPUT_SHAPE, activation = 'tanh', return_sequences = True))
 	model.add(BatchNormalization())
 	model.add(Dropout(0.2))
 
@@ -24,4 +27,4 @@ def create_model():
 
 	model.add(TimeDistributed(Dense(OUTPUT_SHAPE, activation = 'softmax')))
 
-	return model()
+	return model
