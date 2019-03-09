@@ -1,0 +1,9 @@
+DATA_OUTPUT_LOCATION = "./Data/Processed/"
+MIDI_INPUT_LOCATION = "./Data/PreProcessed/"
+MIDI_OUTPUT_LOCATION = "./Data/Midis/Output/"
+MODEL_LOCATION = "./Models/Saved/"
+
+TIME_OF_TIME_SLICE = .02
+MAX_NOTE = 81
+MIN_NOTE = 33
+NOTES_COUNT = MAX_NOTE - MIN_NOTE + 1
