@@ -7,6 +7,7 @@ notes_count = constants.NOTES_COUNT
 
 sequence_length = constants.INPUT_SEQUENCE_LENGTH
 validation_data_split = constants.VALIDATION_DATA_SPLIT
+data_input_size = constants.NEURAL_INPUT_SIZE
 
 class Midi_Data():
 	def __init__(self, total_tick_count, total_time_slice_count, ticks_per_time_slice):
@@ -96,23 +97,45 @@ def piano_roll_to_training_data(piano_roll):
 	output = []
 	
 	#removes elements from list so it can fit inputs and outputs
-	piano_roll = piano_roll[:len(piano_roll) - len(piano_roll) % (sequence_length)]
+	psuedo_sequence = sequence_length - 1
 
-	range_to_parse = len(piano_roll) / (sequence_length) - 1
+	piano_roll = piano_roll[:len(piano_roll) - len(piano_roll) % (psuedo_sequence)]
+	# piano_roll = piano_roll[:8]
+
+	new_col = np.zeros((len(piano_roll), 1), dtype=int)
+	piano_roll = np.append(piano_roll, new_col, 1)
+
+	range_to_parse = len(piano_roll) / (psuedo_sequence) - 1
+
+	# tag that tells neural net to start decoding
+	end_tag = np.zeros((piano_roll[0].shape))
+	end_tag[-1] = 1
 	for i in range(int(range_to_parse)):
-		input_start = i * sequence_length 
-		input_end = i * sequence_length + sequence_length
+		input_start = i * psuedo_sequence 
+		input_end = i * psuedo_sequence + psuedo_sequence
 
-		output_start = i * sequence_length + sequence_length
-		output_end = i * sequence_length + sequence_length * 2 
+		output_start = i * psuedo_sequence + psuedo_sequence
+		output_end = i * psuedo_sequence + psuedo_sequence * 2
 
-		input.append(piano_roll[input_start:input_end])
-		output.append(piano_roll[output_start:output_end])
+		# print(input_start, input_end)
+		# print(output_start, output_end)
+
+		input_array = piano_roll[input_start:input_end]  
+		output_array = piano_roll[output_start:output_end]
+
+		input_array = np.vstack([input_array, end_tag])
+		output_array = np.vstack([output_array, end_tag])
+
+		input.append(input_array)
+		output.append(output_array)
+
+		# input.append(np.append(input_array, end_tag))
+		# output.append(np.append(output_array, end_tag))
 	
-	return input, output
+	return np.array(input), np.array(output)
 
 def split_training_data(training_data_x, training_data_y):
-	split_pos = math.ceil(validation_data_split * len(training_data_x))
+	split_pos = len(training_data_x) - math.ceil(validation_data_split * len(training_data_x))
 
 	validation_x = training_data_x[split_pos:]
 	validation_y = training_data_y[split_pos:]
