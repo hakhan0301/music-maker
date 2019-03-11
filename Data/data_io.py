@@ -36,8 +36,6 @@ def save_all_midis_as_training_data():
 
 	data_x = np.array(data_x)
 	data_y = np.array(data_y)
-	print(f"total sum is {total_sum}")
-	print(f"x sum is {np.sum(data_x)}")
 	pickle.dump((data_x, data_y), file_handler)
 	
 	file_handler.close()

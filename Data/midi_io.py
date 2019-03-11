@@ -29,5 +29,5 @@ def save_piano_roll_as_midi(file_name, piano_roll_data):
 	# some very quick time formatting
 	# goes from: 'Sat Mar  9 12:11:28 2019' to: 'Mar 9 12:12:41 2019'
 	midi_name = time.asctime()[4:].replace('  ', ' ')
-	print(midi_name)
+	
 	return

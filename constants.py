@@ -1,12 +1,12 @@
 
 
 DATA_OUTPUT_LOCATION = "./Data/Processed/"
-MIDI_INPUT_LOCATION = "./Data/PreProcessed/10 Batch - 1/"
-MIDI_OUTPUT_LOCATION = "./Data/Midis/Output/"
-MODEL_LOCATION = "./Models/Saved/"
-PICKLE_FILE_NAME = "10 Batch - 1.obj"
+MIDI_INPUT_LOCATION = "./Data/PreProcessed/500 Batch - 1/"
+MIDI_OUTPUT_LOCATION = "./Midi Output/"
+MODEL_LOCATION = "./Model/Saved/"
+PICKLE_FILE_NAME = "500 Batch - 1.obj"
 
-TIME_OF_TIME_SLICE = .02
+TIME_OF_TIME_SLICE = .2
 MAX_NOTE = 81
 MIN_NOTE = 33
 NOTES_COUNT = MAX_NOTE - MIN_NOTE + 1
@@ -17,8 +17,8 @@ INPUT_SEQUENCE_LENGTH = 20
 
 VALIDATION_DATA_SPLIT = .05
 BATCHES = 64
-
+EPOCHS = 3
 LEARNING_RATE = 0.0007
 DECAY_RATE = 0.0000007
-TRAINING_LOSS = 'categorical_crossentropy'
-TRAINING_METRICS = ['accuracy']
+TRAINING_LOSS = 'binary_crossentropy'
+TRAINING_METRICS = ['binary_accuracy', 'accuracy']

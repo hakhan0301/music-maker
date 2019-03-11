@@ -38,20 +38,21 @@ def create_CuDNN_model():
 def create_model(): 
 	model = Sequential()
 	
-	model.add((LSTM(96, input_shape=input_shape, activation = 'tanh', return_sequences = True)))
+	model.add((LSTM(96, input_shape=input_shape, activation = 'relu', return_sequences = True)))
 	model.add(BatchNormalization())
 	model.add(Dropout(0.2))
 
-	model.add(Bidirectional(LSTM(96, activation = 'tanh')))
+	model.add(Bidirectional(LSTM(96, activation = 'relu')))
 	model.add(RepeatVector(sequence_length))
 
-	model.add(Bidirectional(LSTM(96, activation = 'tanh', return_sequences = True)))
+	model.add(Bidirectional(LSTM(96, activation = 'relu', return_sequences = True)))
 	model.add(BatchNormalization())
 	model.add(Dropout(0.2))
 
-	model.add(Bidirectional(LSTM(96, activation = 'tanh', return_sequences = True)))
+	model.add(Bidirectional(LSTM(96, activation = 'relu', return_sequences = True)))
 	model.add(TimeDistributed(Dense(output_shape)))
 	model.add(Activation('softmax'))
+	# model.add(Activation('tanh'))
 
 	model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 	return model
