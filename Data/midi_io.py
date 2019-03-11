@@ -2,6 +2,7 @@ from Data import data_parser
 import constants, os, time, numpy as np
 
 midi_input_location = constants.MIDI_INPUT_LOCATION
+midi_output_location = constants.MIDI_OUTPUT_LOCATION
 
 def load_all_midis_as_piano_roll():
 	piano_rolls = []
@@ -25,9 +26,11 @@ def load_all_midis_as_training_data():
 def load_midi_as_piano_roll(file_name):
 	return data_parser.midi_to_piano_roll(midi_input_location + file_name)
 
-def save_piano_roll_as_midi(file_name, piano_roll_data):
+def save_piano_roll_as_midi(piano_roll_data, length_in_sec):
 	# some very quick time formatting
-	# goes from: 'Sat Mar  9 12:11:28 2019' to: 'Mar 9 12:12:41 2019'
-	midi_name = time.asctime()[4:].replace('  ', ' ')
+	# goes from: 'Sat Mar  9 12:11:28 2019' to: 'Mar91212412019'
+	midi_name = time.asctime()[4:].replace('  ', ' ').replace(':', '-') + ".mid"
 	
+	midi_file = data_parser.piano_roll_to_midi(piano_roll_data, length_in_sec)
+	midi_file.save(midi_output_location + midi_name)
 	return

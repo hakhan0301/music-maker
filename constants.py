@@ -17,8 +17,8 @@ INPUT_SEQUENCE_LENGTH = 20
 
 VALIDATION_DATA_SPLIT = .05
 BATCHES = 64
-EPOCHS = 3
+EPOCHS = 30
 LEARNING_RATE = 0.0007
 DECAY_RATE = 0.0000007
-TRAINING_LOSS = 'binary_crossentropy'
-TRAINING_METRICS = ['binary_accuracy', 'accuracy']
+TRAINING_LOSS = 'mean_squared_error'
+TRAINING_METRICS = ['accuracy']

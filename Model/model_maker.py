@@ -51,8 +51,8 @@ def create_model():
 
 	model.add(Bidirectional(LSTM(96, activation = 'relu', return_sequences = True)))
 	model.add(TimeDistributed(Dense(output_shape)))
-	model.add(Activation('softmax'))
-	# model.add(Activation('tanh'))
+	# model.add(Activation('softmax'))
+	model.add(Activation('relu'))
 
 	model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 	return model

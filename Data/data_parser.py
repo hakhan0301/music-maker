@@ -9,9 +9,51 @@ sequence_length = constants.INPUT_SEQUENCE_LENGTH
 validation_data_split = constants.VALIDATION_DATA_SPLIT
 data_input_size = constants.NEURAL_INPUT_SIZE
 
-def piano_roll_to_midi(pianoroll_data):
-	return
+#copied from microsoft midi converter
+def piano_roll_to_midi(preprocessed_pianoroll_data, song_length):
+	pianoroll_data = []
+	for x in preprocessed_pianoroll_data:
+		for y in x:
+			pianoroll_data.append(y)
+	pianoroll_data = np.array(pianoroll_data)
+	print(np.array(preprocessed_pianoroll_data).shape)
+	print(np.array(pianoroll_data).shape)
+	
+	ticks_per_time_slice = 1
+	tempo = 1 / time_of_slice_time
+	resolution = 60 * ticks_per_time_slice / (tempo * time_of_slice_time)
 
+	mid = mido.MidiFile(ticks_per_beat = int(resolution))
+	track = mido.MidiTrack()
+	mid.tracks.append(track)
+	track.append(mido.MetaMessage('set_tempo', tempo = int(60000000.0 / tempo), time = 0))
+
+	current_state = np.zeros(notes_count)
+
+	index_of_last_event = 0
+	for slice_index, time_slice in enumerate(np.concatenate((pianoroll_data, np.zeros((1, notes_count))), axis = 0)):
+		note_changes = time_slice - current_state
+		
+		for note_idx, note in enumerate(note_changes):
+			if note == 1:
+				note_event = mido.Message('note_on', time = (slice_index - index_of_last_event)*ticks_per_time_slice, velocity = 65, note = note_idx + min_note )
+				track.append(note_event)
+				index_of_last_event = slice_index
+			elif note == -1:
+				note_event = mido.Message('note_off', time = (slice_index - index_of_last_event)*ticks_per_time_slice, velocity = 65, note = note_idx + min_note )
+				track.append(note_event)
+				index_of_last_event = slice_index
+
+		current_state = time_slice
+
+	song_length_in_ticks = (song_length / time_of_slice_time) * ticks_per_time_slice
+	song_length_in_ticks = int(song_length_in_ticks)
+	eot = mido.MetaMessage('end_of_track', time = song_length_in_ticks)
+	track.append(eot)
+	
+	return mid
+
+#copied from microsoft midi converter
 def midi_to_piano_roll(file_path):
 	midi_data = mido.MidiFile(file_path)
 	resolution = midi_data.ticks_per_beat
@@ -20,10 +62,8 @@ def midi_to_piano_roll(file_path):
 	tempo = 60000000.0/set_tempo_events[0].tempo
 	ticks_per_time_slice = 1.0 * (resolution * tempo * time_of_slice_time)/60 
 	
-	#Get maximum ticks across all tracks
 	total_ticks =0
 	for t in midi_data.tracks:
-        #since ticks represent delta times we need a cumulative sum to get the total ticks in that track
 		sum_ticks = 0
 		for e in t:
 			if str(e.type) == 'note_on' or str(e.type) == 'note_off' or str(e.type) == 'end_of_track':
