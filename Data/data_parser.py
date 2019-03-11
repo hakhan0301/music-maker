@@ -9,82 +9,56 @@ sequence_length = constants.INPUT_SEQUENCE_LENGTH
 validation_data_split = constants.VALIDATION_DATA_SPLIT
 data_input_size = constants.NEURAL_INPUT_SIZE
 
-class Midi_Data():
-	def __init__(self, total_tick_count, total_time_slice_count, ticks_per_time_slice):
-		self.TOTAL_TICK_COUNT = total_tick_count
-		self.TOTAL_TIME_SLICE_COUNT = total_time_slice_count
-		self.TICKS_PER_TIME_SLICE = ticks_per_time_slice
-
-class Training_Data: 
-	def __init__(self, input, output):
-		self.input = input
-		self.output = output
-
 def piano_roll_to_midi(pianoroll_data):
 	return
 
 def midi_to_piano_roll(file_path):
-	midi_file = mido.MidiFile(file_path)
-	midi_data = get_midi_file_data(midi_file)
-
-	total_tick_count = midi_data.TOTAL_TICK_COUNT
-	#ime_slice_count = midi_data.TOTAL_TIME_SLICE_COUNT
-	ticks_per_time_slice = midi_data.TICKS_PER_TIME_SLICE
-
-	piano_roll_data = np.zeros((notes_count, total_tick_count), dtype = int)
-
-	# stores last time each note was on
-	# used to determine how long note was activated for
-	state_of_notes = {}
-
-	for track in midi_file.tracks:
-		tick_count = 0
-
-		for event in track:
-			if event.type == 'note_on' and event.velocity > 0:
-				tick_count += event.time
-				time_slice_index = int(tick_count / ticks_per_time_slice)
-
-				if event.note >= min_note and event.note <= max_note:
-					note_index = event.note - min_note
-					piano_roll_data[note_index][time_slice_index] = 1
-					state_of_notes[note_index] = time_slice_index
-			
-			elif event.type == 'note_off' or (event.type == 'note_on' and event.velocity == 0):
-				tick_count += event.time
-				note_index = event.note - min_note
-				time_slice_index = int(tick_count / ticks_per_time_slice)
-
-				if note_index in state_of_notes:
-					# last stored 'on' state of note to current 'off' state is set to 1
-					# print("filling from", state_of_notes[note_index], " to ", time_slice_index)
-					piano_roll_data[note_index][state_of_notes[note_index]:time_slice_index] = 1
-					del state_of_notes[note_index]
-
-	return piano_roll_data.T
-
-def get_midi_file_data(midi_file):
-	ticks_per_beat = midi_file.ticks_per_beat
+	midi_data = mido.MidiFile(file_path)
+	resolution = midi_data.ticks_per_beat
+	set_tempo_events = [x for t in midi_data.tracks for x in t if str(x.type) == 'set_tempo']
 	
-	tempo_events = [x for t in midi_file.tracks for x in t if str(x.type) == 'set_tempo']
-	tempo = mido.tempo2bpm(tempo_events[0].tempo)
+	tempo = 60000000.0/set_tempo_events[0].tempo
+	ticks_per_time_slice = 1.0 * (resolution * tempo * time_of_slice_time)/60 
+	
+	#Get maximum ticks across all tracks
+	total_ticks =0
+	for t in midi_data.tracks:
+        #since ticks represent delta times we need a cumulative sum to get the total ticks in that track
+		sum_ticks = 0
+		for e in t:
+			if str(e.type) == 'note_on' or str(e.type) == 'note_off' or str(e.type) == 'end_of_track':
+				sum_ticks += e.time
+				
+		if sum_ticks > total_ticks:
+			total_ticks = sum_ticks
 
-	ticks_per_time_slice = float(ticks_per_beat * tempo * time_of_slice_time / 60)
+	time_slices = int(math.ceil(total_ticks / ticks_per_time_slice))
 
-	total_tick_count = 0
-	for track in midi_file.tracks:
-		ticks = 0
+	piano_roll = np.zeros((notes_count, time_slices), dtype =int)
 
+	note_states = {}
+	for track in midi_data.tracks:
+		total_ticks = 0
 		for event in track:
-			if event.type == 'note_on' or event.type == 'note_off' or event.type == 'end_of_track':
-				ticks += event.time
-		
-		if ticks > total_tick_count:
-			total_tick_count = ticks
+			if str(event.type) == 'note_on' and event.velocity > 0:
+				total_ticks += event.time
+				time_slice_idx = int(total_ticks / ticks_per_time_slice )
 
-	time_slice_count = int(math.ceil(total_tick_count / ticks_per_time_slice))
+				if event.note <= max_note and event.note >= min_note: 
+					note_idx = event.note - min_note
+					piano_roll[note_idx][time_slice_idx] = 1
+					note_states[note_idx] = time_slice_idx
 
-	return Midi_Data(total_tick_count, time_slice_count, ticks_per_time_slice)
+			elif str(event.type) == 'note_off' or ( str(event.type) == 'note_on' and event.velocity == 0 ):
+				note_idx = event.note - min_note
+				total_ticks += event.time
+				time_slice_idx = int(total_ticks /ticks_per_time_slice )
+
+				if note_idx in note_states:	
+					last_time_slice_index = note_states[note_idx]
+					piano_roll[note_idx][last_time_slice_index:time_slice_idx] = 1
+					del note_states[note_idx]
+	return piano_roll.T
 
 #if piano_roll data goes to index 200 and sequence length is 50
 #piano roll is split into indices ranging from __ to __
