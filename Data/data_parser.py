@@ -97,19 +97,20 @@ def piano_roll_to_training_data(piano_roll):
 	output = []
 	
 	#removes elements from list so it can fit inputs and outputs
-	psuedo_sequence = sequence_length - 1
+	psuedo_sequence = sequence_length
 
 	piano_roll = piano_roll[:len(piano_roll) - len(piano_roll) % (psuedo_sequence)]
 	# piano_roll = piano_roll[:8]
 
-	new_col = np.zeros((len(piano_roll), 1), dtype=int)
-	piano_roll = np.append(piano_roll, new_col, 1)
+	# new_col = np.zeros((len(piano_roll), 1), dtype=bool)
+	# piano_roll = np.append(piano_roll, new_col, 1)
 
 	range_to_parse = len(piano_roll) / (psuedo_sequence) - 1
 
 	# tag that tells neural net to start decoding
-	end_tag = np.zeros((piano_roll[0].shape))
-	end_tag[-1] = 1
+	# end_tag = np.zeros((piano_roll[0].shape))
+	# end_tag[-1] = 1
+
 	for i in range(int(range_to_parse)):
 		input_start = i * psuedo_sequence 
 		input_end = i * psuedo_sequence + psuedo_sequence
@@ -123,8 +124,8 @@ def piano_roll_to_training_data(piano_roll):
 		input_array = piano_roll[input_start:input_end]  
 		output_array = piano_roll[output_start:output_end]
 
-		input_array = np.vstack([input_array, end_tag])
-		output_array = np.vstack([output_array, end_tag])
+		# input_array = np.vstack([input_array, end_tag])
+		# output_array = np.vstack([output_array, end_tag])
 
 		input.append(input_array)
 		output.append(output_array)
@@ -133,6 +134,19 @@ def piano_roll_to_training_data(piano_roll):
 		# output.append(np.append(output_array, end_tag))
 	
 	return np.array(input), np.array(output)
+
+def piano_roll_array_to_training_data(piano_rolls):
+	training_data_x = []
+	training_data_y = []
+	for piano_roll in piano_rolls:
+		data_x, data_y = piano_roll_to_training_data(piano_roll)
+		for x in data_x:
+			training_data_x.append(x)
+		for y in data_y:
+			training_data_y.append(y)
+	
+	return np.array(training_data_x), np.array(training_data_y)
+
 
 def split_training_data(training_data_x, training_data_y):
 	split_pos = len(training_data_x) - math.ceil(validation_data_split * len(training_data_x))
