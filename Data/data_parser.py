@@ -9,16 +9,30 @@ sequence_length = constants.INPUT_SEQUENCE_LENGTH
 validation_data_split = constants.VALIDATION_DATA_SPLIT
 data_input_size = constants.NEURAL_INPUT_SIZE
 
-#copied from microsoft midi converter
-def piano_roll_to_midi(preprocessed_pianoroll_data, song_length):
-	pianoroll_data = []
-	for x in preprocessed_pianoroll_data:
+def process_piano_roll(preprocessed_piano_roll_data):
+	piano_roll_data = []
+	for x in preprocessed_piano_roll_data:
 		for y in x:
-			pianoroll_data.append(y)
-	pianoroll_data = np.array(pianoroll_data)
-	print(np.array(preprocessed_pianoroll_data).shape)
-	print(np.array(pianoroll_data).shape)
-	
+			piano_roll_data.append(y)
+
+	output = []
+	for x in piano_roll_data:
+		x_1 = []
+		for y in x:
+			if (y > constants.NOTE_CUTOFF):
+				y = 1
+			else:
+				y = 0
+			x_1.append(y)
+		output.append(x_1)
+	output = np.array(output)
+	return output
+
+
+#copied from microsoft midi converter
+def piano_roll_to_midi(preprocessed_piano_roll_data, song_length):
+	print('creating midi file')
+	piano_roll_data = process_piano_roll(preprocessed_piano_roll_data)
 	ticks_per_time_slice = 1
 	tempo = 1 / time_of_slice_time
 	resolution = 60 * ticks_per_time_slice / (tempo * time_of_slice_time)
@@ -31,7 +45,7 @@ def piano_roll_to_midi(preprocessed_pianoroll_data, song_length):
 	current_state = np.zeros(notes_count)
 
 	index_of_last_event = 0
-	for slice_index, time_slice in enumerate(np.concatenate((pianoroll_data, np.zeros((1, notes_count))), axis = 0)):
+	for slice_index, time_slice in enumerate(np.concatenate((piano_roll_data, np.zeros((1, notes_count))), axis = 0)):
 		note_changes = time_slice - current_state
 		
 		for note_idx, note in enumerate(note_changes):

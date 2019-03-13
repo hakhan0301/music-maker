@@ -28,7 +28,6 @@ def load_midi_as_piano_roll(file_name):
 
 def save_piano_roll_as_midi(piano_roll_data, length_in_sec):
 	# some very quick time formatting
-	# goes from: 'Sat Mar  9 12:11:28 2019' to: 'Mar91212412019'
 	midi_name = time.asctime()[4:].replace('  ', ' ').replace(':', '-') + ".mid"
 	
 	midi_file = data_parser.piano_roll_to_midi(piano_roll_data, length_in_sec)

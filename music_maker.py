@@ -14,6 +14,8 @@ def get_initial_input():
     songs_list = os.listdir(constants.MIDI_INPUT_LOCATION)
     # initial_song = songs_list[0]
     initial_song = songs_list[random.randint(0, len(songs_list) - 1)]
+    # initial_song = 'MIDI-UNPROCESSED_21-22_R1_2014_MID--AUDIO_22_R1_2014_wav--1.midi'
+    print(f"starting with song: {initial_song}")
     
     piano_roll = midi_io.load_midi_as_piano_roll(initial_song)
     data_x, data_y = data_parser.piano_roll_to_training_data(piano_roll)
@@ -34,12 +36,11 @@ def piano_roll_from_network(model, length_in_sec):
 
     output = []
     output.append(model_input)
-    print(seq_count)
     for i in range(seq_count):
         model_input = model.predict([output[i]])
         output.append(model_input)
 
-    return format_network_output(output[:])
+    return format_network_output(output[1:])
 
 def format_network_output(nn_output):
     output = []
@@ -48,9 +49,23 @@ def format_network_output(nn_output):
     return output
 
 def make_song(model, length_in_sec):
-    potential_song = piano_roll_from_network(model, length_in_sec)
-    midi_io.save_piano_roll_as_midi(potential_song, length_in_sec)
+    piano_roll = piano_roll_from_network(model, length_in_sec)
+    midi_io.save_piano_roll_as_midi(piano_roll, length_in_sec)
     return
 
-model = model_io.load_model_from_index(-1)
-make_song(model, 300)
+
+# data_io.save_all_midis_as_training_data()
+
+# model = model_maker.create_nobi_model()
+# model_trainer.train_model(model)
+# model_io.save_model("jazz_mse_relu_nobi_96_30epoch_50seq.model", model)
+
+
+# model = model_io.load_model_from_name("131702-jazz_huber_relu_nobi_96_30epoch_50seq.model")
+
+# make_song(model, 30)
+
+# good bots
+# 230148-jazz_mse_tanh_192_10epoch.model
+# 220732-jazz_mse_tanh_nobi_192_10epoch.model
+# 131521-sqe_relu_96_30epoch.model

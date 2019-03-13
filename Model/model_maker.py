@@ -12,47 +12,47 @@ decay = constants.DECAY_RATE
 loss = constants.TRAINING_LOSS
 metrics = constants.TRAINING_METRICS
 optimizer = tf.keras.optimizers.Adam(lr = lr, decay = decay)
-
-def create_CuDNN_model():
-	model = Sequential()
-	
-	model.add((CuDNNLSTM(96, input_shape=input_shape, return_sequences = True)))
-	model.add(BatchNormalization())
-	model.add(Dropout(0.2))
-
-	model.add(Bidirectional(CuDNNLSTM(96)))
-	model.add(RepeatVector(sequence_length))
-
-	model.add(Bidirectional(CuDNNLSTM(96, return_sequences = True)))
-	model.add(BatchNormalization())
-	model.add(Dropout(0.2))
-
-	model.add(Bidirectional(CuDNNLSTM(96, return_sequences = True)))
-	model.add(TimeDistributed(Dense(output_shape)))
-	model.add(Activation('softmax'))
-
-	model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
-	return model
+activation = constants.ACTIVATION
 
 
-def create_model(): 
+def create_nobi_model(): 
 	model = Sequential()
 	
 	model.add((LSTM(96, input_shape=input_shape, activation = 'relu', return_sequences = True)))
 	model.add(BatchNormalization())
 	model.add(Dropout(0.2))
 
-	model.add(Bidirectional(LSTM(96, activation = 'relu')))
+	model.add((LSTM(96, activation = 'relu')))
 	model.add(RepeatVector(sequence_length))
 
-	model.add(Bidirectional(LSTM(96, activation = 'relu', return_sequences = True)))
+	model.add((LSTM(96, activation = 'relu', return_sequences = True)))
 	model.add(BatchNormalization())
 	model.add(Dropout(0.2))
 
-	model.add(Bidirectional(LSTM(96, activation = 'relu', return_sequences = True)))
+	model.add((LSTM(96, activation = 'relu', return_sequences = True)))
 	model.add(TimeDistributed(Dense(output_shape)))
-	# model.add(Activation('softmax'))
-	model.add(Activation('relu'))
+	model.add(Activation(activation))
+
+	model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
+	return model
+
+def create_model(): 
+	model = Sequential()
+	
+	model.add((LSTM(192, input_shape=input_shape, activation = 'relu', return_sequences = True)))
+	model.add(BatchNormalization())
+	model.add(Dropout(0.2))
+
+	model.add(Bidirectional(LSTM(192, activation = 'relu')))
+	model.add(RepeatVector(sequence_length))
+
+	model.add(Bidirectional(LSTM(192, activation = 'relu', return_sequences = True)))
+	model.add(BatchNormalization())
+	model.add(Dropout(0.2))
+
+	model.add(Bidirectional(LSTM(192, activation = 'relu', return_sequences = True)))
+	model.add(TimeDistributed(Dense(output_shape)))
+	model.add(Activation(activation))
 
 	model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 	return model
