@@ -14,7 +14,7 @@ def save_all_midis_as_training_data():
 	data_x = []
 	data_y = []
 	total_sum = 0
-	for file_name in path_list:
+	for file_name in path_list[:]:
 		i += 1
 		if(i % 10 == 0):
 			print(f"on file {i} out of {len(path_list)}")

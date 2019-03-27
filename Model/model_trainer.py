@@ -1,6 +1,6 @@
 import tensorflow as tf
 from Data import midi_io, data_parser, data_io
-import constants
+import constants, numpy as np
 
 batches = constants.BATCHES
 epochs = constants.EPOCHS

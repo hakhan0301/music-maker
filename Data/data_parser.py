@@ -4,6 +4,7 @@ time_of_slice_time = constants.TIME_OF_TIME_SLICE
 max_note = constants.MAX_NOTE
 min_note = constants.MIN_NOTE
 notes_count = constants.NOTES_COUNT
+value_of_note_on = constants.NOTE_ACTIVE_VALUE
 
 sequence_length = constants.INPUT_SEQUENCE_LENGTH
 validation_data_split = constants.VALIDATION_DATA_SPLIT
@@ -76,7 +77,7 @@ def midi_to_piano_roll(file_path):
 	tempo = 60000000.0/set_tempo_events[0].tempo
 	ticks_per_time_slice = 1.0 * (resolution * tempo * time_of_slice_time)/60 
 	
-	total_ticks =0
+	total_ticks = 0
 	for t in midi_data.tracks:
 		sum_ticks = 0
 		for e in t:
@@ -100,7 +101,7 @@ def midi_to_piano_roll(file_path):
 
 				if event.note <= max_note and event.note >= min_note: 
 					note_idx = event.note - min_note
-					piano_roll[note_idx][time_slice_idx] = 1
+					piano_roll[note_idx][time_slice_idx] = value_of_note_on
 					note_states[note_idx] = time_slice_idx
 
 			elif str(event.type) == 'note_off' or ( str(event.type) == 'note_on' and event.velocity == 0 ):
@@ -110,7 +111,7 @@ def midi_to_piano_roll(file_path):
 
 				if note_idx in note_states:	
 					last_time_slice_index = note_states[note_idx]
-					piano_roll[note_idx][last_time_slice_index:time_slice_idx] = 1
+					piano_roll[note_idx][last_time_slice_index:time_slice_idx] = value_of_note_on
 					del note_states[note_idx]
 	return piano_roll.T
 
